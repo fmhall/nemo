@@ -1,38 +1,10 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-from typing import Dict, Optional, List, Any
+from typing import Dict, List, Any
+from nemo.models import Fishnet, Stockfish, Work, FullWork
 
 
 app = FastAPI()
-
-
-class Fishnet(BaseModel):
-    version: str
-    python: str
-    apikey: str
-
-
-class Stockfish(BaseModel):
-    name: str
-    options: Dict[str, str]
-
-
-class Work(BaseModel):
-    work_type: str
-    work_id: str
-    level: Optional[int] = None
-
-
-class FullWork(BaseModel):
-    work: Dict[str, str]
-    game_id: Optional[str]
-    position: str
-    variant: str = "standard"
-    moves: str
-    nodes: Optional[int]
-    skipPositions: List[int]
-
 
 """
 "fishnet": {
@@ -47,11 +19,6 @@ class FullWork(BaseModel):
       "threads": "4"
     }
 """
-
-
-# @app.get("/status")
-# def read_root():
-#     return {"Hello": "World"}
 
 
 @app.post("/acquire", status_code=status.HTTP_202_ACCEPTED)
@@ -75,6 +42,12 @@ def post_analysis(
 
 
 @app.post("/abort/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
+def abort(work_id: str, fishnet: Fishnet, stockfish: Stockfish):
+
+    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+
+
+@app.post("/games/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
 def abort(work_id: str, fishnet: Fishnet, stockfish: Stockfish):
 
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
