@@ -2,12 +2,13 @@ from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Any
 from nemo.models import Fishnet, Stockfish, Work, FullWork
-
+from nemo.work_queue import work_queue
+import uuid
 
 app = FastAPI()
 
 """
-"fishnet": {
+{"fishnet": {
     "version": "1.15.7",
     "python": "2.7.11+",
     "apikey": "XXX"
@@ -18,6 +19,8 @@ app = FastAPI()
       "hash": "256",
       "threads": "4"
     }
+  }
+}
 """
 
 
@@ -31,9 +34,8 @@ def acquire(fishnet: Fishnet, stockfish: Stockfish):
 
 @app.post("/analysis/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
 def post_analysis(
-    work_id: str, fishnet: Fishnet, stockfish: Stockfish, analysis: List[Dict[str, Any]]
+    work_id: str, fishnet: Fishnet, stockfish: Stockfish, analysis: List[Any]
 ):
-
     saved = process_analysis(analysis)
     full_work = None
     if not full_work:
@@ -54,19 +56,10 @@ def abort(work_id: str, fishnet: Fishnet, stockfish: Stockfish):
 
 
 def get_work(fishnet: Fishnet, stockfish: Stockfish) -> FullWork:
-    work = Work(work_type="analysis", work_id="work_id")
-    print(work)
-    response = FullWork(
-        work={"id": work.work_id, "type": work.work_type},
-        game_id="abcdefgh",
-        position="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        moves="e2e4 c7c5 c2c4 b8c6 g1e2 g8f6 b1c3 c6b4 g2g3 b4d3",
-        nodes=3500000,
-        skipPositions=[1, 4, 5],
-    )
-    return response
+
+    return work_queue.get_next_work_item()
 
 
-def process_analysis(analysis: List[Dict[str, str]]):
+def process_analysis(analysis: List[Any]):
     saved: bool = True
     return saved

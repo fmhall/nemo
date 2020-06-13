@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Dict, Optional, List, Any
+from uuid import UUID
 
 
 class Fishnet(BaseModel):
@@ -14,13 +15,13 @@ class Stockfish(BaseModel):
 
 
 class Work(BaseModel):
-    work_type: str
-    work_id: str
+    type: str
+    id: UUID
     level: Optional[int] = None
 
 
 class FullWork(BaseModel):
-    work: Dict[str, str]
+    work: Work
     game_id: Optional[str]
     position: str
     variant: str = "standard"
