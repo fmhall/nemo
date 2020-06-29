@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 from typing import Dict, Optional, List, Any
 from uuid import UUID
+import uuid
+import string
+import random
+
+
+def random_string(string_length=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(string_length))
 
 
 class Fishnet(BaseModel):
@@ -16,13 +24,13 @@ class Stockfish(BaseModel):
 
 class Work(BaseModel):
     type: str
-    id: UUID
+    id: UUID = uuid.uuid4()
     level: Optional[int] = None
 
 
 class FullWork(BaseModel):
     work: Work
-    game_id: Optional[str]
+    game_id: Optional[str] = random_string()
     position: str
     variant: str = "standard"
     moves: str
