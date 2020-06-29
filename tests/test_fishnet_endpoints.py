@@ -15,19 +15,12 @@ def test_acquire():
             "options": {"hash": "256", "threads": "4"},
         },
     }
-    r = client.post(
-        "/acquire",
-        json=data,
-    )
+    r = client.post("/acquire", json=data,)
     response = r.json()
     assert r.status_code == 202
     assert "work" in response
 
-    r2 = client.post(
-        "/acquire",
-        json=data,
-    )
+    r2 = client.post("/acquire", json=data,)
     response = r2.json()
     assert r2.status_code == 204
     assert "work" not in response
-

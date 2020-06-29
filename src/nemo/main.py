@@ -40,7 +40,7 @@ def post_analysis(
     work_id: uuid.UUID,
     fishnet: Fishnet,
     stockfish: Stockfish,
-    analysis: Optional[List[Analysis]],
+    analysis: Optional[List[Optional[Analysis]]],
 ):
     give_new_work = process_analysis(work_id, fishnet, stockfish, analysis)
     if give_new_work:
