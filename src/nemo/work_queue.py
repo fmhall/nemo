@@ -74,15 +74,14 @@ class WorkQueue:
         self.assigned_analysis[work_id] = analysis
 
         if completed_plys == game_length:
-            logger.debug(f"All analysis complete for work ID {work_id}")
+            logger.info(f"All analysis complete for work ID {work_id}")
             assert work_id in self.assigned_analysis
             return True
         else:
-            logger.info(f"Received progress report on {work_id}. {completed_plys / game_length * 100}% complete.")
+            logger.info(
+                f"Received progress report on {work_id}. {round(completed_plys / game_length * 100)}% complete."
+            )
 
-        logger.info(
-            f"Work ID {work_id} is {completed_plys / game_length * 100}% finished"
-        )
         return False
 
     def __len__(self):
