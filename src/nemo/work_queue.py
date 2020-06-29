@@ -8,9 +8,17 @@ logger = logging.getLogger(__name__)
 
 
 class WorkQueue:
+    """
+    Work Queue for engine analysis work
+    Also stores game analysis information
+    TODO: Split into multiple data structures, switch to async, redis(?)
+    """
 
     work_deque: Deque[FullWork]
     assigned_work: Dict[str, FullWork]
+    assigned_analysis: Dict[uuid.UUID, List[Optional[Analysis]]]
+    retired_work: Set[uuid.UUID]
+    game_url_to_uuid: Dict[str, uuid.UUID]
 
     def __init__(self):
         self.work_deque = deque()
