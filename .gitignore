@@ -1,4 +1,6 @@
 .idea
+__pycache__/
+tests/__pycache__
 src/nemo/__pycache__
 env/
-
+.pytest_cache
