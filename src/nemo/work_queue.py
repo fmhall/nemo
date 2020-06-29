@@ -78,7 +78,7 @@ class WorkQueue:
             assert work_id in self.assigned_analysis
             return True
         else:
-            logger.debug(f"Received progress report on {work_id}")
+            logger.info(f"Received progress report on {work_id}. {completed_plys / game_length * 100}% complete.")
 
         logger.info(
             f"Work ID {work_id} is {completed_plys / game_length * 100}% finished"
