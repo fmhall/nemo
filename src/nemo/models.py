@@ -28,3 +28,15 @@ class FullWork(BaseModel):
     moves: str
     nodes: Optional[int]
     skipPositions: List[int]
+
+
+class Analysis(BaseModel):
+    pv: Optional[str]
+    seldepth: Optional[int]
+    tbhits: Optional[int]
+    depth: Optional[int]
+    score: Optional[Any]
+    time: Optional[int]
+    nodes: Optional[int]
+    nps: Optional[int]
+    skipped: Optional[bool]

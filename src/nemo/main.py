@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Any
-from nemo.models import Fishnet, Stockfish, Work, FullWork
+from nemo.models import Fishnet, Stockfish, Work, FullWork, Analysis
 from nemo.work_queue import work_queue
 import uuid
 
@@ -34,9 +34,9 @@ def acquire(fishnet: Fishnet, stockfish: Stockfish):
 
 @app.post("/analysis/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
 def post_analysis(
-    work_id: str, fishnet: Fishnet, stockfish: Stockfish, analysis: List[Any]
+    work_id: str, fishnet: Fishnet, stockfish: Stockfish, analyses: List[Analysis]
 ):
-    saved = process_analysis(analysis)
+    saved = process_analysis(analyses)
     full_work = None
     if not full_work:
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
