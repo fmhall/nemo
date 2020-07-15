@@ -1,8 +1,10 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Any, Optional
-from nemo.models import Fishnet, Stockfish, FullWork, Analysis
+import requests
+from nemo.models import Fishnet, Stockfish, FullWork, Analysis, Pgn_sub
 from nemo.work_queue import work_queue
+from nemo import utils
 import uuid
 import logging
 
@@ -60,7 +62,7 @@ def abort(work_id: uuid.UUID, fishnet: Fishnet, stockfish: Stockfish):
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
 
 
-@app.post("/games", status_code=status.HTTP_202_ACCEPTED)
+@app.post("/work", status_code=status.HTTP_202_ACCEPTED)
 def post_work(full_work: FullWork):
     work_id = full_work.work.id
     if work_id in work_queue.assigned_analysis:
@@ -73,7 +75,7 @@ def post_work(full_work: FullWork):
     return JSONResponse(status_code=status.HTTP_201_CREATED, content={})
 
 
-@app.get("/games/{game_id}", status_code=status.HTTP_200_OK)
+@app.get("/work/{game_id}", status_code=status.HTTP_200_OK)
 def get_analysis(game_id: str):
     if game_id in work_queue.game_url_to_uuid:
         work_id = work_queue.game_url_to_uuid[game_id]
@@ -84,6 +86,25 @@ def get_analysis(game_id: str):
     else:
         logger.warning("Game ID not in game ID to work ID map")
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+
+
+@app.post("/game", status_code=status.HTTP_202_ACCEPTED)
+def post_game(pgn_sub: Pgn_sub):
+    game = utils.pgn_to_game(pgn_sub.pgn)
+    if game and pgn_sub.check_cloud:
+        url = "https://lichess.org/api/cloud-eval"
+        board = game.board()
+        for move_num, move in enumerate(game.mainline_moves()):
+            board.push(move)
+            fen = board.fen()
+            logger.debug(fen)
+            response = requests.get(url, params={"fen": fen})
+            if response.status_code == 200:
+                logger.debug(response.json())
+    else:
+        logger.debug("Not checking cloud evals")
+
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content={"pgn": str(game)})
 
 
 def get_next_work_item(fishnet: Fishnet, stockfish: Stockfish) -> Optional[FullWork]:

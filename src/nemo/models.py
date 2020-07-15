@@ -8,7 +8,7 @@ import random
 
 def random_string(string_length=8):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for _ in range(string_length))
+    return "".join(random.choice(letters) for _ in range(string_length))
 
 
 class Fishnet(BaseModel):
@@ -23,7 +23,7 @@ class Stockfish(BaseModel):
 
 
 class Work(BaseModel):
-    type: str
+    type: str = "analysis"
     id: UUID = uuid.uuid4()
     level: Optional[int] = None
 
@@ -31,7 +31,7 @@ class Work(BaseModel):
 class FullWork(BaseModel):
     work: Work
     game_id: Optional[str] = random_string()
-    position: str
+    position: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     variant: str = "standard"
     moves: str
     nodes: Optional[int]
@@ -48,3 +48,9 @@ class Analysis(BaseModel):
     nodes: Optional[int]
     nps: Optional[int]
     skipped: Optional[bool]
+
+
+class Pgn_sub(BaseModel):
+    pgn: str
+    check_cloud: Optional[bool] = False
+    pass
