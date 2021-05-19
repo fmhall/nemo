@@ -23,5 +23,5 @@ jobs:
       # https://github.com/docker/build-push-action#multi-platform-image
       - name: Build the Docker image
         run: |
-          docker build . --rm=false -t ${{ secrets.DOCKERHUB_USERNAME }}/nemo:latest
+          docker build . --rm=false --platform=linux/arm -t ${{ secrets.DOCKERHUB_USERNAME }}/nemo:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nemo:latest
