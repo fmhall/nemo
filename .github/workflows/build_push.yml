@@ -24,4 +24,4 @@ jobs:
       - name: Build the Docker image
         run: |
           docker build . --rm=false -t ${{ secrets.DOCKERHUB_USERNAME }}/nemo:latest
-          docker push masonhall/nemo:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nemo:latest
