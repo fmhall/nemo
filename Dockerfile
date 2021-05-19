@@ -1,4 +1,4 @@
-FROM arm32v7/python:3.8-buster
+FROM --platform=linux/arm64 arm32v7/python:3.8-buster
 
 COPY requirements.txt requirements.txt
 

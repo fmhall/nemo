@@ -29,9 +29,9 @@ app = FastAPI()
 """
 
 
-@app.get("/status", status_code=status.HTTP_200_OK)
-def status():
-    return JSONResponse(status_code=status.HTTP_200_OK, content={})
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 
 @app.post("/acquire", status_code=status.HTTP_202_ACCEPTED)
