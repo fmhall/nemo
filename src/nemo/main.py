@@ -29,6 +29,11 @@ app = FastAPI()
 """
 
 
+@app.get("/status", status_code=status.HTTP_200_OK)
+def status():
+    return JSONResponse(status_code=status.HTTP_200_OK, content={})
+
+
 @app.post("/acquire", status_code=status.HTTP_202_ACCEPTED)
 def acquire(fishnet: Fishnet, stockfish: Stockfish):
     full_work = get_next_work_item(fishnet, stockfish)

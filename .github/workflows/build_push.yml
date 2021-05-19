@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+
+  build:
+    name: Build ➡️ Push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: |
+        docker build . --rm=false -t masonhall/nemo:latest
+        echo ${{ secrets.DOCKER_ACCESS_KEY }} | docker login --password-stdin --username masonhall
+        docker push masonhall/nemo:latest
