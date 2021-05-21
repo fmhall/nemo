@@ -1,6 +1,6 @@
 from collections import deque
 from typing import Deque, Dict, Optional, Set, List
-from nemo.models import FullWork, Work, Analysis
+from nemo.models import FullWork, Work, Analysis, Nodes
 import uuid
 import logging
 
@@ -16,16 +16,16 @@ class WorkQueue:
 
     work_deque: Deque[FullWork]
     assigned_work: Dict[str, FullWork]
-    assigned_analysis: Dict[uuid.UUID, List[Optional[Analysis]]]
-    retired_work: Set[uuid.UUID]
-    game_url_to_uuid: Dict[str, uuid.UUID]
+    assigned_analysis: Dict[str, List[Optional[Analysis]]]
+    retired_work: Set[str]
+    game_url_to_uuid: Dict[str, str]
 
     def __init__(self):
         self.work_deque = deque()
-        self.assigned_work: Dict[uuid.UUID, FullWork] = dict()
-        self.assigned_analysis: Dict[uuid.UUID, List[Optional[Analysis]]] = dict()
-        self.retired_work: Set[uuid.UUID] = set()
-        self.game_url_to_uuid: Dict[str, uuid.UUID] = dict()
+        self.assigned_work: Dict[str, FullWork] = dict()
+        self.assigned_analysis: Dict[str, List[Optional[Analysis]]] = dict()
+        self.retired_work: Set[str] = set()
+        self.game_url_to_uuid: Dict[str, str] = dict()
 
     def add_work_item(self, item: FullWork):
         self.work_deque.append(item)
@@ -44,7 +44,7 @@ class WorkQueue:
             logger.debug(f"Assigned {item.work.id} to {item}")
             logger.debug(self.assigned_work)
 
-    def retire_work_item(self, work_id: uuid.UUID) -> None:
+    def retire_work_item(self, work_id: str) -> None:
         if work_id in self.assigned_work:
             logger.debug(f"Removing {work_id} from assigned work")
             del self.assigned_work[work_id]
@@ -54,7 +54,7 @@ class WorkQueue:
                 f"Tried to retire work that was already retired. Work ID: {work_id}"
             )
 
-    def get_work_by_id(self, work_id: uuid.UUID) -> Optional[FullWork]:
+    def get_work_by_id(self, work_id: str) -> Optional[FullWork]:
         if work_id in self.assigned_work:
             return self.assigned_work[work_id]
         elif work_id in self.retired_work:
@@ -62,7 +62,7 @@ class WorkQueue:
             return None
 
     def update_analysis_by_work_id(
-        self, work_id: uuid.UUID, analysis: List[Optional[Analysis]]
+        self, work_id: str, analysis: List[Optional[Analysis]]
     ) -> bool:
         if work_id not in self.assigned_work:
             logger.error(f"Work ID {work_id} not in assigned work.")
@@ -90,14 +90,13 @@ class WorkQueue:
 
 work_queue = WorkQueue()
 
-work = Work(type="analysis", id=uuid.uuid4())
+work = Work(type="analysis", id=uuid.uuid4().hex, nodes=Nodes(nnue=2250000, classical=4050000))
 print(work)
 response = FullWork(
     work=work,
     game_id="abcdefgh",
     position="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     moves="e2e4 c7c5 c2c4 b8c6 g1e2 g8f6 b1c3 c6b4 g2g3 b4d3",
-    nodes=3500000,
     skipPositions=[1, 4, 5],
 )
 work_queue.add_work_item(response)

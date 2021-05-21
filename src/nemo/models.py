@@ -13,8 +13,11 @@ def random_string(string_length=8):
 
 class Fishnet(BaseModel):
     version: str
-    python: str
     apikey: str
+
+
+class FishnetDetails(BaseModel):
+    fishnet: Fishnet
 
 
 class Stockfish(BaseModel):
@@ -22,10 +25,15 @@ class Stockfish(BaseModel):
     options: Dict[str, str]
 
 
+class Nodes(BaseModel):
+    nnue: int
+    classical: int
+
+
 class Work(BaseModel):
     type: str = "analysis"
-    id: UUID = uuid.uuid4()
-    level: Optional[int] = None
+    id: str = uuid.uuid4().hex
+    nodes: Nodes
 
 
 class FullWork(BaseModel):
@@ -34,7 +42,6 @@ class FullWork(BaseModel):
     position: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     variant: str = "standard"
     moves: str
-    nodes: Optional[int]
     skipPositions: List[int]
 
 
