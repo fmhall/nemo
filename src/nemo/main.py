@@ -1,8 +1,8 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
-from typing import Dict, List, Any, Optional
+from typing import List, Optional
 import requests
-from nemo.models import Fishnet, Stockfish, FullWork, Analysis, Pgn_sub
+from nemo.models import Fishnet, Stockfish, FullWork, Analysis, Pgn_sub, Move
 from nemo.work_queue import work_queue
 from nemo import utils
 import uuid
@@ -34,24 +34,23 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/acquire", status_code=status.HTTP_202_ACCEPTED)
+@app.post("/fishnet/acquire", status_code=status.HTTP_202_ACCEPTED)
 def acquire(fishnet: Fishnet, stockfish: Stockfish):
-    full_work = get_next_work_item(fishnet, stockfish)
+    logger.debug("Request for new work from {}, {}".format(fishnet, stockfish))
+    full_work = get_next_work_item()
     if not full_work:
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
     return full_work
 
 
-@app.post("/analysis/{work_id}", status_code=status.HTTP_202_ACCEPTED)
+@app.post("/fishnet/analysis/{work_id}", status_code=status.HTTP_202_ACCEPTED)
 def post_analysis(
     work_id: uuid.UUID,
-    fishnet: Fishnet,
-    stockfish: Stockfish,
     analysis: Optional[List[Optional[Analysis]]],
 ):
-    give_new_work = process_analysis(work_id, fishnet, stockfish, analysis)
+    give_new_work = process_analysis(work_id, analysis)
     if give_new_work:
-        full_work = get_next_work_item(fishnet, stockfish)
+        full_work = get_next_work_item()
         if full_work:
             return full_work
         logger.warning("Work from queue was empty")
@@ -59,8 +58,17 @@ def post_analysis(
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
 
 
+@app.post("/fishnet/move/{work_id}", status_code=status.HTTP_202_ACCEPTED)
+def post_analysis(
+    work_id: uuid.UUID, move: Optional[Move],
+):
+    # give_new_work = process_move(work_id, fishnet, move)
+
+    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+
+
 @app.post("/abort/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
-def abort(work_id: uuid.UUID, fishnet: Fishnet, stockfish: Stockfish):
+def abort(work_id: uuid.UUID):
     work = work_queue.get_work_by_id(work_id)
     logger.warning(f"Work ID {work_id} was forsaken, adding back to queue")
     work_queue.add_work_item(work)
@@ -112,7 +120,7 @@ def post_game(pgn_sub: Pgn_sub):
     return JSONResponse(status_code=status.HTTP_201_CREATED, content={"pgn": str(game)})
 
 
-def get_next_work_item(fishnet: Fishnet, stockfish: Stockfish) -> Optional[FullWork]:
+def get_next_work_item() -> Optional[FullWork]:
     new_work = work_queue.get_next_work_item()
     if new_work:
         logger.debug(f"Giving next work item, ID: {new_work.work.id}")
@@ -121,8 +129,6 @@ def get_next_work_item(fishnet: Fishnet, stockfish: Stockfish) -> Optional[FullW
 
 def process_analysis(
     work_id: uuid.UUID,
-    fishnet: Fishnet,
-    stockfish: Stockfish,
     analysis: Optional[List[Optional[Analysis]]],
 ) -> bool:
     work = work_queue.get_work_by_id(work_id)

@@ -50,6 +50,10 @@ class Analysis(BaseModel):
     skipped: Optional[bool]
 
 
+class Move(BaseModel):
+    bestmove: Optional[str]
+
+
 class Pgn_sub(BaseModel):
     pgn: str
     check_cloud: Optional[bool] = False
